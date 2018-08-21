@@ -137,12 +137,21 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
                      "EventName":txtEventName.text as String?,
                      "EventDesc":txtEventDescription.text as String?,
                      "EventLocation":txtLocation.text as String?,
-                     "EventType":self.selectedValue as String?,
+                     "EventType":self.selectedValue as String? ?? "other",
                      "EventStartDate":Utills.shared.dateToString(date: self.dpStartDate.date) as String?,
                      "EventEndDate":Utills.shared.dateToString(date: self.dpEndDate.date) as String?,
                      "CreatorId":self.viewModal.userid,
                      "Active":self.switchIsActive.isOn ? 1 : 0
             ] as [String : Any]
+        
+        if self.isEditingMode {
+            self.viewModal.selectedEvent?.EventDesc = txtEventDescription.text as String?
+            self.viewModal.selectedEvent?.EventName = txtEventName.text as String?
+            self.viewModal.selectedEvent?.EventType = self.selectedValue as String? ?? "other"
+            self.viewModal.selectedEvent?.EventLocation = txtLocation.text as String?
+            self.viewModal.selectedEvent?.Active = self.switchIsActive.isOn ? 1 : 0
+            
+        }
         
         refEvents.child(eventId).updateChildValues(event)
     }
@@ -157,6 +166,19 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
     */
  
     @IBAction func saveEvent(_ sender: Any) {
+        self.btnSaveEvent.isHidden = true
+        
+        //self.btnSaveEvent.loadingIndicator(show: true)
+        
         self.UpdateEvent()
+        
+       // if !isEditingMode {
+            if let navController = self.navigationController {
+                navController.popViewController(animated: true)
+            }
+       // }
+        //self.btnSaveEvent.loadingIndicator(show: false)
+        self.btnSaveEvent.isHidden = false
     }
+       
 }

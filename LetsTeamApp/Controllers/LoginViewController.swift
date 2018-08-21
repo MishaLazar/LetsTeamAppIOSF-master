@@ -12,7 +12,7 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController ,UITextFieldDelegate{
     
     @IBOutlet weak var btnLoginRegister: UIButton!
     @IBOutlet weak var LogoUiImageView: UIImageView!
@@ -29,6 +29,10 @@ class LoginViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        txtEmail.delegate = self
+        txtName.delegate  = self
+        txtPassword.delegate = self
         LogoUiImageView.image = logoImg
         refUsers = Database.database().reference().child("users");
 
@@ -47,8 +51,62 @@ class LoginViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
     
     }
-    
-    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        switch textField.placeholder {
+        case "Email":
+            var email = self.txtEmail.text as? String ?? ""
+            if !email.isValidEmail() {
+                txtEmail.backgroundColor = UIColor.red.withAlphaComponent(0.3)
+            } else {
+                txtEmail.backgroundColor = UIColor.white
+            }
+        case "Name":
+            var name = self.txtName.text as? String ?? ""
+            if name.count < 1 {
+                txtName.backgroundColor = UIColor.red.withAlphaComponent(0.3)
+            } else {
+                txtName.backgroundColor = UIColor.white
+            }
+        case "Password":
+            var password = self.txtPassword.text as? String ?? ""
+            if password.count < 5 {
+                txtPassword.backgroundColor = UIColor.red.withAlphaComponent(0.3)
+            } else {
+                txtPassword.backgroundColor = UIColor.white
+            }
+        default: break
+            
+        }
+    }
+   func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        switch textField.placeholder {
+        case "Email":
+            var email = self.txtEmail.text as? String ?? ""
+            if !email.isValidEmail() {
+                txtEmail.backgroundColor = UIColor.red.withAlphaComponent(0.3)
+            } else {
+                txtEmail.backgroundColor = UIColor.green.withAlphaComponent(0.3)
+            }
+        case "Name":
+            var name = self.txtName.text as? String ?? ""
+            if name.count < 1 {
+                txtName.backgroundColor = UIColor.red.withAlphaComponent(0.3)
+            } else {
+                txtName.backgroundColor = UIColor.green.withAlphaComponent(0.3)
+            }
+        case "Password":
+            var password = self.txtPassword.text as? String ?? ""
+            if password.count < 5 {
+                txtPassword.backgroundColor = UIColor.red.withAlphaComponent(0.3)
+            } else {
+                txtPassword.backgroundColor = UIColor.green.withAlphaComponent(0.3)
+            }
+        default: break
+            
+        }
+        
+        return true
+    }
     @IBAction func segLoginRegisterTuched(_ sender: Any) {
     changeLoginRegisterInterfaceBySelectedSegment(segLoginRegister.selectedSegmentIndex)
     }
@@ -70,34 +128,39 @@ class LoginViewController: UIViewController {
         }    }
     
     @objc func handleLogin(){
-        
-        if (self.txtEmail.text?.count)! > 0 && (self.txtPassword.text?.count)! > 0 {
+        var email = self.txtEmail.text as? String ?? ""
+        if email.isValidEmail() {
             
-            
-            Auth.auth().signIn(withEmail: self.txtEmail.text! as String, password: self.txtPassword.text! as String) { (user, error) in
-                // ...
-                let usersRef = Database.database().reference().child("users")
-                let uid = user?.user.uid
+       
+            if (self.txtPassword.text?.count)! > 0 {
                 
-                if usersRef != nil && uid != nil {
-                    usersRef.child(uid!).observeSingleEvent(of: .value, with: {(snapshot) in
-                     
-                        if snapshot.childrenCount > 0 {
-                            AppUser.currentUser.setUserFromFB(snapshot: snapshot)
-                            self.switchToMainScreen()
-                        }
-                       
-                    })
-                } else {
-                    self.showAlert(massage: "Something went wrong! try Again pleas")
+                
+                Auth.auth().signIn(withEmail: self.txtEmail.text! as String, password: self.txtPassword.text! as String) { (user, error) in
+                    // ...
+                    let usersRef = Database.database().reference().child("users")
+                    let uid = user?.user.uid
+                    
+                    if usersRef != nil && uid != nil {
+                        usersRef.child(uid!).observeSingleEvent(of: .value, with: {(snapshot) in
+                         
+                            if snapshot.childrenCount > 0 {
+                                AppUser.currentUser.setUserFromFB(snapshot: snapshot)
+                                self.switchToMainScreen()
+                            }
+                           
+                        })
+                    } else {
+                        self.showAlert(massage: "Something went wrong! try Again pleas")
+                    }
+                   
                 }
-               
+            } else {
+                self.showAlert(massage: "Invalid email or password")
+                
             }
-        } else {
-            self.showAlert(massage: "Invalid email or password")
-            
+        }else {
+            txtEmail.backgroundColor = UIColor.red.withAlphaComponent(0.3)
         }
-        
         
     }
     
@@ -107,7 +170,7 @@ class LoginViewController: UIViewController {
         var pass = txtPassword.text! as String
         var name = txtName.text! as String
         if(name.count > 0){
-            if(email.contains("@")){
+            if email.isValidEmail() {
                 if (pass.count > 5){
                     
                     var userDict = ["name": name,
@@ -133,11 +196,13 @@ class LoginViewController: UIViewController {
                     
                 }
                 else{
+                    txtPassword.backgroundColor = UIColor.red.withAlphaComponent(0.3)
                     self.showAlert(massage: "Password is too short. Must be at least 6 characters long.")
                     
                 }
             }
             else{
+                txtEmail.backgroundColor = UIColor.red.withAlphaComponent(0.3)
                 self.showAlert(massage: "Invalid email address.")
                 
             }

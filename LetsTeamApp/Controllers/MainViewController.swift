@@ -201,7 +201,9 @@ class MainViewController: UIViewController, UICollectionViewDelegate,UICollectio
                 //            .observeSingleEvent(of: .value, with: { (snapshot) in
                 //if the reference have some values
                 if snapshot.childrenCount > 0 {
-                    
+                    if self.Listed.count > 0 {
+                        self.Listed.removeAll()
+                    }
                     //iterating through all the values
                     for event in snapshot.children.allObjects as! [DataSnapshot] {
                         //getting values
@@ -215,19 +217,20 @@ class MainViewController: UIViewController, UICollectionViewDelegate,UICollectio
                         }
                         
                     }
-                }
-            
-            if listedEvents.count > 0 {
-                 for listedEventId in listedEvents {
-                    for event in self.AllEvents {
-                        if event.Id == listedEventId{
-                            self.Listed.append(event)
+                    if listedEvents.count > 0 {
+                        for listedEventId in listedEvents {
+                            for event in self.AllEvents {
+                                if event.Id == listedEventId{
+                                    self.Listed.append(event)
+                                }
+                            }
                         }
                     }
+                    self.viewModal.setEvents(Events: self.Listed)
+                    self.EventContentCollectionView.reloadData()
                 }
-            }
-            self.viewModal.setEvents(Events: self.Listed)
-            self.EventContentCollectionView.reloadData()
+            
+            
         }
        
         //self.isLoadingPartial(isLoading: false)

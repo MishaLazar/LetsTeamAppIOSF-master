@@ -42,12 +42,12 @@ class EventDescriptionViewController: UIViewController {
         //enableEditIfMyEvent()
         
 
-        self.EventDescTxtView.text = self.selectedEvent.EventDesc
+        /*self.EventDescTxtView.text = self.selectedEvent.EventDesc
         self.EventNameLbl.text = self.selectedEvent.EventName
         self.EventImageView.image = UIImage(named: EventTypePrefix + self.selectedEvent.EventType!)
-        
+        */
         ref = Database.database().reference().child("ListedEvents").child(self.viewModal.userid!);
-        reloadStar()
+       // reloadStar()
         
         
         // Do any additional setup after loading the view.
@@ -55,6 +55,10 @@ class EventDescriptionViewController: UIViewController {
   
     override func viewWillAppear(_ animated: Bool) {
         enableEditIfMyEvent()
+        self.EventDescTxtView.text = self.selectedEvent.EventDesc
+        self.EventNameLbl.text = self.selectedEvent.EventName
+        self.EventImageView.image = UIImage(named: EventTypePrefix + self.selectedEvent.EventType!)
+        reloadStar()
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
