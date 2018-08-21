@@ -70,30 +70,34 @@ class LoginViewController: UIViewController {
         }    }
     
     @objc func handleLogin(){
-        print("login clicked")
-/*
-        let email: String = txtEmail.text!
-        let password: String = txtPassword.text!
-        refUsers.observe(DataEventType.value, with: { (snapshot) in
-            //if the reference have some values
-            if snapshot.childrenCount > 0 {
-                                //iterating through all the values
-                for users in snapshot.children.allObjects as! [DataSnapshot] {
-                    //getting values
-                    let userObject = users.value as? [String: AnyObject]
-                    let userEmail = userObject?["email"] as? String
-                    let userPassword = userObject?["password"] as? String
-                    
-                    if userEmail == email && userPassword == password {
-                        print("login ok")
-                        break
-                    }
-                    
-                }
-            }
-        })*/
         
-        switchToMainScreen()
+        if (self.txtEmail.text?.count)! > 0 && (self.txtPassword.text?.count)! > 0 {
+            
+            
+            Auth.auth().signIn(withEmail: self.txtEmail.text! as String, password: self.txtPassword.text! as String) { (user, error) in
+                // ...
+                let usersRef = Database.database().reference().child("users")
+                let uid = user?.user.uid
+                
+                if usersRef != nil && uid != nil {
+                    usersRef.child(uid!).observeSingleEvent(of: .value, with: {(snapshot) in
+                     
+                        if snapshot.childrenCount > 0 {
+                            AppUser.currentUser.setUserFromFB(snapshot: snapshot)
+                            self.switchToMainScreen()
+                        }
+                       
+                    })
+                } else {
+                    self.showAlert(massage: "Something went wrong! try Again pleas")
+                }
+               
+            }
+        } else {
+            self.showAlert(massage: "Invalid email or password")
+            
+        }
+        
         
     }
     

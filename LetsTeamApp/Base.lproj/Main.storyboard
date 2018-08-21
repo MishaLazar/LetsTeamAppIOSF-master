@@ -168,7 +168,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="2" translatesAutoresizingMaskIntoConstraints="NO" id="HNw-hN-0VZ">
+                            <segmentedControl hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="2" translatesAutoresizingMaskIntoConstraints="NO" id="HNw-hN-0VZ">
                                 <rect key="frame" x="8" y="84" width="359" height="46"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="45" id="eSt-xy-Qyd"/>
@@ -183,7 +183,7 @@
                                     <action selector="segMainEventsSegmentSelected:" destination="Yyu-nV-xVT" eventType="valueChanged" id="7oZ-Sy-EmC"/>
                                 </connections>
                             </segmentedControl>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="zce-td-cBV">
+                            <collectionView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="zce-td-cBV">
                                 <rect key="frame" x="8" y="159" width="359" height="447.5"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="vhv-0G-1py">
@@ -229,20 +229,37 @@
                                     <outlet property="delegate" destination="Yyu-nV-xVT" id="FJG-c9-Nzk"/>
                                 </connections>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1qG-qM-or6">
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1qG-qM-or6">
                                 <rect key="frame" x="8" y="629" width="359" height="30"/>
                                 <state key="normal" title="Create New Event"/>
                                 <connections>
                                     <action selector="CreateNewEvent:" destination="Yyu-nV-xVT" eventType="touchUpInside" id="vj7-Ln-9ej"/>
                                 </connections>
                             </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bi0-Wy-dvi" userLabel="Splash">
+                                <rect key="frame" x="0.0" y="129" width="375" height="500"/>
+                                <subviews>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="p8b-th-xh6">
+                                        <rect key="frame" x="169.5" y="232" width="37" height="37"/>
+                                        <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </activityIndicatorView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="p8b-th-xh6" firstAttribute="centerY" secondItem="bi0-Wy-dvi" secondAttribute="centerY" id="Num-eb-9us"/>
+                                    <constraint firstItem="p8b-th-xh6" firstAttribute="centerX" secondItem="bi0-Wy-dvi" secondAttribute="centerX" id="nU3-cF-6TH"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="Ibs-K0-Hs5" firstAttribute="trailing" secondItem="bi0-Wy-dvi" secondAttribute="trailing" id="067-Lb-Cwd"/>
+                            <constraint firstItem="bi0-Wy-dvi" firstAttribute="leading" secondItem="Ibs-K0-Hs5" secondAttribute="leading" id="8Mz-c8-iyC"/>
                             <constraint firstItem="Ibs-K0-Hs5" firstAttribute="trailing" secondItem="zce-td-cBV" secondAttribute="trailing" constant="8" id="9P2-sz-wRI"/>
                             <constraint firstItem="zce-td-cBV" firstAttribute="leading" secondItem="Ibs-K0-Hs5" secondAttribute="leading" constant="8" id="9e9-eg-g8b"/>
+                            <constraint firstItem="1qG-qM-or6" firstAttribute="top" secondItem="bi0-Wy-dvi" secondAttribute="bottom" id="POr-6c-nTe"/>
                             <constraint firstItem="1qG-qM-or6" firstAttribute="leading" secondItem="Ibs-K0-Hs5" secondAttribute="leading" constant="8" id="Sv2-c5-WN6"/>
                             <constraint firstItem="Ibs-K0-Hs5" firstAttribute="trailing" secondItem="HNw-hN-0VZ" secondAttribute="trailing" constant="8" id="Uxs-Ei-MpF"/>
+                            <constraint firstItem="bi0-Wy-dvi" firstAttribute="top" secondItem="HNw-hN-0VZ" secondAttribute="bottom" id="XBz-t9-13l"/>
                             <constraint firstAttribute="bottom" secondItem="1qG-qM-or6" secondAttribute="bottom" constant="8" id="f8Y-5F-cet"/>
                             <constraint firstItem="1qG-qM-or6" firstAttribute="top" secondItem="zce-td-cBV" secondAttribute="bottom" multiplier="0.8" constant="144" id="lQb-q3-714"/>
                             <constraint firstItem="zce-td-cBV" firstAttribute="top" secondItem="HNw-hN-0VZ" secondAttribute="bottom" constant="30" id="lfG-Cv-nIR"/>
@@ -257,6 +274,7 @@
                         <outlet property="EventContentCollectionView" destination="zce-td-cBV" id="667-Uw-eYN"/>
                         <outlet property="btnCreateNewEvent" destination="1qG-qM-or6" id="ybH-hB-d58"/>
                         <outlet property="segMainEvents" destination="HNw-hN-0VZ" id="4zj-Th-Yoq"/>
+                        <outlet property="splashView" destination="bi0-Wy-dvi" id="6c4-YU-8N9"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cUr-ur-Ldx" userLabel="First Responder" sceneMemberID="firstResponder"/>

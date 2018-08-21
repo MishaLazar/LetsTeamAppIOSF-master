@@ -19,9 +19,12 @@ class MainViewController: UIViewController, UICollectionViewDelegate,UICollectio
     var numberOfCells:Int = 1
     var refEvents: DatabaseReference!
     var refUsers: DatabaseReference!
+    var refListedEvents: DatabaseReference!
     
     @IBOutlet weak var EventContentCollectionView: UICollectionView!
     @IBOutlet weak var segMainEvents: UISegmentedControl!
+    
+    @IBOutlet weak var splashView: UIView!
     
     @IBOutlet weak var btnCreateNewEvent: UIButton!
     
@@ -31,19 +34,21 @@ class MainViewController: UIViewController, UICollectionViewDelegate,UICollectio
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        refEvents = Database.database().reference().child("Events");
-        
+        refEvents = Database.database().reference().child("Events")
+        refListedEvents = Database.database().reference().child("ListedEvents")
         
         //self.viewModal.setEvents(Events: self.MyEvents)
         // Do any additional setup after loading the view, typically from a nib.
         changeMainViewSelectedSegment(segMainEvents.selectedSegmentIndex)
-        
+       
         getAllEventTypes()
+        addEditButton()
     }
     //override func viewWillAppear(_ animated: Bool) {
       //  getAllEvents()
        // self.viewModal.setEvents(Events: self.MyEvents)    }
     override func viewDidAppear(_ animated: Bool) {
+        isLoading(isLoading: true)
         getAllEvents()
         self.viewModal.setEvents(Events: self.MyEvents)    }
     
@@ -66,8 +71,9 @@ class MainViewController: UIViewController, UICollectionViewDelegate,UICollectio
         case 1:
             //Listed
             print(2)
-            //getListedEvents()
-            self.viewModal.setEvents(Events:self.Listed)
+            //self.isLoadingPartial(isLoading: true)
+            getListedEvents()
+            
         case 2:
             //All
             print(3)
@@ -181,11 +187,91 @@ class MainViewController: UIViewController, UICollectionViewDelegate,UICollectio
                 }
                 self.viewModal.setEvents(Events: self.AllEvents)
                 self.EventContentCollectionView.reloadData()
-
+                self.isLoading(isLoading: false)
             }
         }
         
         
+    }
+    func getListedEvents(){
+        self.Listed.removeAll()
+        var listedEvents = [String]()
+        refListedEvents.child(self.viewModal.userid!).observeSingleEvent(of: .value) { (snapshot) in
+                
+                //            .observeSingleEvent(of: .value, with: { (snapshot) in
+                //if the reference have some values
+                if snapshot.childrenCount > 0 {
+                    
+                    //iterating through all the values
+                    for event in snapshot.children.allObjects as! [DataSnapshot] {
+                        //getting values
+                        let eventObject = event.value as? [String: AnyObject]
+                        let listedEventID = event.key as? String
+                        let isListed = eventObject?["isListed"] as? Bool ?? false
+                        
+                        
+                        if isListed {
+                            listedEvents.append(listedEventID!)
+                        }
+                        
+                    }
+                }
+            
+            if listedEvents.count > 0 {
+                 for listedEventId in listedEvents {
+                    for event in self.AllEvents {
+                        if event.Id == listedEventId{
+                            self.Listed.append(event)
+                        }
+                    }
+                }
+            }
+            self.viewModal.setEvents(Events: self.Listed)
+            self.EventContentCollectionView.reloadData()
+        }
+       
+        //self.isLoadingPartial(isLoading: false)
+    }
+    func isLoading(isLoading:Bool){
+        if isLoading{
+            self.splashView.isHidden = false
+            self.btnCreateNewEvent.isHidden = true
+            self.segMainEvents.isHidden = true
+            self.EventContentCollectionView.isHidden = true
+        } else {
+            self.splashView.isHidden = true
+            self.btnCreateNewEvent.isHidden = false
+            self.segMainEvents.isHidden = false
+            self.EventContentCollectionView.isHidden = false
+        }
+    }
+    func isLoadingPartial(isLoading:Bool){
+        if isLoading{
+            self.splashView.isHidden = false
+            self.btnCreateNewEvent.isHidden = true
+            self.segMainEvents.isEnabled = false
+            self.EventContentCollectionView.isHidden = true
+        } else {
+            self.splashView.isHidden = true
+            self.btnCreateNewEvent.isHidden = false
+            self.segMainEvents.isEnabled = true
+            self.EventContentCollectionView.isHidden = false
+        }
+    }
+    
+    func addEditButton (){
+        let signOut = UIBarButtonItem(title: "Sign out", style: .plain, target: self, action: #selector(signOutTapped))
+        self.navigationItem.rightBarButtonItems = [signOut]
+        
+    }
+    @objc func signOutTapped(){
+        self.isLoading(isLoading: true)
+        AppUser.currentUser.onSignOut()
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let LoginNav = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
+        
+        UIApplication.shared.keyWindow?.rootViewController = LoginNav
     }
     func getAllEventTypes() {
         

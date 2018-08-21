@@ -38,4 +38,15 @@ class AppUser {
             pass = userDict["password"] as? String
         }
     }
+    
+    
+    
+    func onSignOut(){
+        name = nil
+        email = nil
+        pass = nil
+        uid = nil
+        
+        try! Auth.auth().signOut()
+    }
 }
