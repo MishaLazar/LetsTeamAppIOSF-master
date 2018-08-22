@@ -25,12 +25,14 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
     @IBOutlet weak var txtEventEndDate: UITextField!
     @IBOutlet weak var dpEventDates: UIDatePicker!
     @IBOutlet weak var txtEventType: UITextField!
-    @IBOutlet weak var dpEndDate: UIDatePicker!
-    @IBOutlet weak var dpStartDate: UIDatePicker!
+   // @IBOutlet weak var dpEndDate: UIDatePicker!
+   // @IBOutlet weak var dpStartDate: UIDatePicker!
     @IBOutlet weak var lstEventType: UIPickerView!
     @IBOutlet weak var txtEventName: UITextField!
     @IBOutlet weak var txtEventDescription: UITextView!
+   // @IBOutlet weak var eventDateView: UIView!
     
+   // @IBOutlet weak var EventTypeView: UIView!
     @IBOutlet weak var switchIsActive: UISwitch!
     var viewModal:EventListViewModal = EventListViewModal.shared
     var selectedValue: String = ""
@@ -39,16 +41,20 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
         super.viewDidLoad()
         self.lstEventType.delegate = self
         self.lstEventType.dataSource = self
-        self.txtEventEndDate.delegate = self
-        self.txtEventType.delegate = self
-        self.txtEventStartDate.delegate = self
+        
+        txtEventEndDate.delegate = self
+        txtEventType.delegate = self
+        txtEventStartDate.delegate = self
+       
+        
         self.refEvents = Database.database().reference().child("Events")
         if isEditingMode {
             self.txtLocation.text = self.viewModal.selectedEvent?.EventLocation ?? "Not Set"
             self.txtEventName.text = self.viewModal.selectedEvent?.EventName ?? "Not Set"
             self.txtEventDescription.text = self.viewModal.selectedEvent?.EventDesc ?? "Not Set"
-           /* self.dpStartDate.date = (self.viewModal.selectedEvent?.EventStartDate)!
-            self.dpEndDate.date = (self.viewModal.selectedEvent?.EventEndDate)!*/
+            self.txtEventStartDate.text = Utills.shared.dateToString(date:  (self.viewModal.selectedEvent?.EventStartDate)!)
+            self.txtEventEndDate.text = Utills.shared.dateToString(date:  (self.viewModal.selectedEvent?.EventEndDate)!)
+            self.txtEventType.text = self.viewModal.selectedEvent?.EventType
             if self.viewModal.selectedEvent?.Active == 1 {
                 self.switchIsActive.isOn = true
             } else {
@@ -65,68 +71,60 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
         //getAllEventTypes()
     }
     
-    /*func getAllEventTypes() {
-       
-        refEvents = Database.database().reference().child("EventTypes");
-        refEvents
-            .observeSingleEvent(of: .value, with: { (snapshot) in
-                //if the reference have some values
-                if snapshot.childrenCount > 0 {
-                    if self.viewModal.ETypes.count > 0 {
-                        //self.viewModal.ETypes.removeAll()
-                    }
-                    //iterating through all the values
-                    for eventType in snapshot.children.allObjects as! [DataSnapshot] {
-                        //getting values
-                        let eventObject = eventType.value as? [String: AnyObject]
-                        let typeName = eventObject?["type"] as! String                         let typeId = eventObject?["id"] as! Int
-                        let typeBckImg = eventObject?["background_img_name"] as! String
-                        let typeImgName = eventObject?["img_name"] as! String
-                        
-                        let e1 =  EventTypes(type: typeName, id: String(typeId), background_img_name: typeBckImg, img_name: typeImgName)
-                        
-                        self.viewModal.ETypes.append( e1)
-                    }
-                }
-            })
-        
-        self.lstEventType.delegate = self
-        self.lstEventType.dataSource = self
-        
-    }*/
+  
     @IBAction func pickerSaveAction(_ sender: Any) {
         self.pickersView.isHidden  =  true
-        self.dpEventDates.isHidden = true
-        self.lstEventType.isHidden  = true
+        //self.dpEventDates.isHidden = true
+        //self.lstEventType.isHidden  = true
+        
+        
         if self.isDateSelected {
-            //need to handel datepicker
+            self.selectedTxtField?.text = Utills.shared.dateToString(date: self.dpEventDates.date) as String?
         } else {
-            //need to handle type picker
-        }
+            self.txtEventType.text = self.selectedValue as String? ?? "other"        }
         self.isDateSelected = false
     }
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
     
         
-        switch textField.accessibilityIdentifier {
-        case "StartDate":
-            self.pickersView.isHidden   = false
-            self.dpEventDates.isHidden = false
-            self.lstEventType.isHidden = true
-            self.selectedTxtField = self.txtEventStartDate
-            self.isDateSelected = true
+        switch textField.placeholder {
+        case "Start":
+            if self.txtEventStartDate.isTouchInside {
+                self.pickersView.isHidden   = false
+                //self.eventDateView.isHidden = false
+               // self.EventTypeView.isHidden = true
+                self.dpEventDates.isHidden = false
+                self.lstEventType.isHidden = true
+                
+                self.selectedTxtField = self.txtEventStartDate
+                self.isDateSelected = true
+            }
+            
            
-        case "EndDate":
-            self.pickersView.isHidden   = false
-            self.dpEventDates.isHidden = false
-            self.lstEventType.isHidden = true
-            self.selectedTxtField = self.txtEventStartDate
-            self.isDateSelected = true
-        case "EvenType":
-            self.pickersView.isHidden   = false
-            self.lstEventType.isHidden = false
-            self.dpEventDates.isHidden = true
-            self.isDateSelected = false
+        case "End":
+          if  self.txtEventEndDate.isTouchInside {
+            
+                self.pickersView.isHidden   = false
+               // self.eventDateView.isHidden = false
+              //  self.EventTypeView.isHidden = true
+                self.dpEventDates.isHidden = false
+                self.lstEventType.isHidden = true
+            
+                self.selectedTxtField = self.txtEventEndDate
+                self.isDateSelected = true
+            }
+            
+        case "Type":
+            if self.txtEventType.isTouchInside{
+                self.pickersView.isHidden   = false
+                //self.eventDateView.isHidden = true
+                //self.EventTypeView.isHidden = false
+                self.lstEventType.isHidden = false
+                self.dpEventDates.isHidden = true
+                
+                self.isDateSelected = false
+            }
+            
         default: break
             
         }
@@ -186,8 +184,10 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
                      "EventDesc":txtEventDescription.text as String?,
                      "EventLocation":txtLocation.text as String?,
                      "EventType":self.selectedValue as String? ?? "other",
-                     "EventStartDate":Utills.shared.dateToString(date: self.dpStartDate.date) as String?,
-                     "EventEndDate":Utills.shared.dateToString(date: self.dpEndDate.date) as String?,
+                     "EventStartDate":self.txtEventStartDate,
+            //Utills.shared.dateToString(date: self.dpEventDates.date) as String?,
+                     "EventEndDate":self.txtEventEndDate,
+            //Utills.shared.dateToString(date: self.dpEndDate.date) as String?,
                      "CreatorId":self.viewModal.userid,
                      "Active":self.switchIsActive.isOn ? 1 : 0
             ] as [String : Any]
