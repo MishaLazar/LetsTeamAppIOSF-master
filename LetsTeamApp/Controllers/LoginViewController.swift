@@ -110,6 +110,15 @@ class LoginViewController: UIViewController ,UITextFieldDelegate{
     @IBAction func segLoginRegisterTuched(_ sender: Any) {
     changeLoginRegisterInterfaceBySelectedSegment(segLoginRegister.selectedSegmentIndex)
     }
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+       textField.resignFirstResponder()
+        return true
+    }
+    
+    override func touchesBegan(_: Set<UITouch>, with: UIEvent?) {
+        
+        self.view.endEditing(true)
+    }
     func changeLoginRegisterInterfaceBySelectedSegment(_ index:Int){
         /*need to remove targets*/
         btnLoginRegister.removeTarget(nil, action: nil, for: .allEvents)

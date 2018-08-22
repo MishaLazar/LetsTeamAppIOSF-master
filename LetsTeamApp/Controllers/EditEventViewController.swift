@@ -45,8 +45,10 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
         txtEventEndDate.delegate = self
         txtEventType.delegate = self
         txtEventStartDate.delegate = self
-       
-        
+        self.lstEventType.selectRow(0, inComponent:0, animated:true)
+        self.txtEventType.inputView = UIView()
+        self.txtEventStartDate.inputView = UIView()
+        self.txtEventEndDate.inputView = UIView()
         self.refEvents = Database.database().reference().child("Events")
         if isEditingMode {
             self.txtLocation.text = self.viewModal.selectedEvent?.EventLocation ?? "Not Set"
@@ -60,6 +62,9 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
             } else {
                 self.switchIsActive.isOn = false
             }
+            self.lstEventType.selectRow(self.getSelectedEventType(), inComponent:0, animated:true)
+            
+
         }
         
        // self.lstEventType.a
@@ -130,6 +135,16 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
         }
         return true
     }
+    func getSelectedEventType() -> Int{
+        var strtype = 0
+        for (index,type )in self.viewModal.ETypes.enumerated() {
+            if type.type == (self.viewModal.selectedEvent?.EventType)!{
+                strtype  = index
+            }
+            
+        }
+        return strtype
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -168,37 +183,54 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
         
         return dateFormatter.string(from: datePicker.date)
     }
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
     
+    override func touchesBegan(_: Set<UITouch>, with: UIEvent?) {
+        
+        self.view.endEditing(true)
+    }
     func UpdateEvent(){
         var eventId = self.viewModal.selectedEvent?.Id ?? ""
         
         if !self.isEditingMode {
             eventId = refEvents.childByAutoId().key
         }
-        
+        var type = ""
+        if self.selectedValue == "" {
+            type = self.txtEventType.text!
+        }else {
+            type = self.selectedValue as String? ?? "other"
             
+        }
      
         
         let event = ["id":eventId,
                      "EventName":txtEventName.text as String?,
                      "EventDesc":txtEventDescription.text as String?,
                      "EventLocation":txtLocation.text as String?,
-                     "EventType":self.selectedValue as String? ?? "other",
-                     "EventStartDate":self.txtEventStartDate,
+                     "EventType":type,
+                     "EventStartDate":self.txtEventStartDate.text as String?,
             //Utills.shared.dateToString(date: self.dpEventDates.date) as String?,
-                     "EventEndDate":self.txtEventEndDate,
+                     "EventEndDate":self.txtEventEndDate.text as String?,
             //Utills.shared.dateToString(date: self.dpEndDate.date) as String?,
                      "CreatorId":self.viewModal.userid,
                      "Active":self.switchIsActive.isOn ? 1 : 0
             ] as [String : Any]
         
+        
+        
         if self.isEditingMode {
+          
             self.viewModal.selectedEvent?.EventDesc = txtEventDescription.text as String?
             self.viewModal.selectedEvent?.EventName = txtEventName.text as String?
-            self.viewModal.selectedEvent?.EventType = self.selectedValue as String? ?? "other"
+            self.viewModal.selectedEvent?.EventType = type
             self.viewModal.selectedEvent?.EventLocation = txtLocation.text as String?
             self.viewModal.selectedEvent?.Active = self.switchIsActive.isOn ? 1 : 0
-            
+            self.viewModal.selectedEvent?.EventStartDate = Utills.shared.stringToDate(date:  self.txtEventStartDate.text!)
+            self.viewModal.selectedEvent?.EventEndDate =  Utills.shared.stringToDate(date: self.txtEventEndDate.text!)
         }
         
         refEvents.child(eventId).updateChildValues(event)
