@@ -9,14 +9,22 @@
 import UIKit
 import Firebase
 import FirebaseDatabase
-class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerViewDataSource {
+class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerViewDataSource ,UITextFieldDelegate{
    
     
     
     var refEvents: DatabaseReference!
     var isEditingMode: Bool = false
+    var isDateSelected: Bool = false
+    var selectedTxtField:UITextField?
+    @IBOutlet weak var pickersView: UIView!
+    @IBOutlet weak var btnSavepicker: UIButton!
     @IBOutlet weak var btnSaveEvent: UIButton!
     @IBOutlet weak var txtLocation: UITextField!
+    @IBOutlet weak var txtEventStartDate: UITextField!
+    @IBOutlet weak var txtEventEndDate: UITextField!
+    @IBOutlet weak var dpEventDates: UIDatePicker!
+    @IBOutlet weak var txtEventType: UITextField!
     @IBOutlet weak var dpEndDate: UIDatePicker!
     @IBOutlet weak var dpStartDate: UIDatePicker!
     @IBOutlet weak var lstEventType: UIPickerView!
@@ -31,13 +39,16 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
         super.viewDidLoad()
         self.lstEventType.delegate = self
         self.lstEventType.dataSource = self
+        self.txtEventEndDate.delegate = self
+        self.txtEventType.delegate = self
+        self.txtEventStartDate.delegate = self
         self.refEvents = Database.database().reference().child("Events")
         if isEditingMode {
             self.txtLocation.text = self.viewModal.selectedEvent?.EventLocation ?? "Not Set"
             self.txtEventName.text = self.viewModal.selectedEvent?.EventName ?? "Not Set"
             self.txtEventDescription.text = self.viewModal.selectedEvent?.EventDesc ?? "Not Set"
-            self.dpStartDate.date = (self.viewModal.selectedEvent?.EventStartDate)!
-            self.dpEndDate.date = (self.viewModal.selectedEvent?.EventEndDate)!
+           /* self.dpStartDate.date = (self.viewModal.selectedEvent?.EventStartDate)!
+            self.dpEndDate.date = (self.viewModal.selectedEvent?.EventEndDate)!*/
             if self.viewModal.selectedEvent?.Active == 1 {
                 self.switchIsActive.isOn = true
             } else {
@@ -83,7 +94,44 @@ class EditEventViewController: UIViewController ,UIPickerViewDelegate, UIPickerV
         self.lstEventType.dataSource = self
         
     }*/
+    @IBAction func pickerSaveAction(_ sender: Any) {
+        self.pickersView.isHidden  =  true
+        self.dpEventDates.isHidden = true
+        self.lstEventType.isHidden  = true
+        if self.isDateSelected {
+            //need to handel datepicker
+        } else {
+            //need to handle type picker
+        }
+        self.isDateSelected = false
+    }
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
     
+        
+        switch textField.accessibilityIdentifier {
+        case "StartDate":
+            self.pickersView.isHidden   = false
+            self.dpEventDates.isHidden = false
+            self.lstEventType.isHidden = true
+            self.selectedTxtField = self.txtEventStartDate
+            self.isDateSelected = true
+           
+        case "EndDate":
+            self.pickersView.isHidden   = false
+            self.dpEventDates.isHidden = false
+            self.lstEventType.isHidden = true
+            self.selectedTxtField = self.txtEventStartDate
+            self.isDateSelected = true
+        case "EvenType":
+            self.pickersView.isHidden   = false
+            self.lstEventType.isHidden = false
+            self.dpEventDates.isHidden = true
+            self.isDateSelected = false
+        default: break
+            
+        }
+        return true
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
